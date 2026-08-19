@@ -50,25 +50,30 @@ jobs:
         run: |
           crtx_resp=$(curl -s "$CORTEX_URL/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
             -H "x-xdr-auth-id: $API_ID" \
-            -H "Authorization: $API_KEY") 
-            
-          # Check if the curl command was successful before proceeding
-          if [ $? -ne 0 ] || echo "$crtx_resp" | jq -e '.error_code' > /dev/null; then
+            -H "Authorization: $API_KEY")
+      
+          echo "=== DEBUG crtx_resp ==="
+          echo "$crtx_resp"
+          echo "========================"
+      
+          if echo "$crtx_resp" | jq -e '.error_code' > /dev/null 2>&1; then
             echo "Failed to retrieve CLI download link. Response: $crtx_resp"
             exit 1
           fi
-
-          # Parse the response using jq
-          crtx_url=$(echo $crtx_resp | jq -r ".signed_url")
-          crtx_file=$(echo $crtx_resp | jq -r ".file_name")
-          
-          # Download the file using the signed URL
+      
+          crtx_url=$(echo "$crtx_resp" | jq -r ".signed_url")
+          crtx_file=$(echo "$crtx_resp" | jq -r ".file_name")
+      
+          if [ -z "$crtx_url" ] || [ "$crtx_url" == "null" ] || [ -z "$crtx_file" ] || [ "$crtx_file" == "null" ]; then
+            echo "signed_url o file_name vinieron vacíos/null. Respuesta completa arriba."
+            exit 1
+          fi
+      
           echo "Downloading $crtx_file from signed URL..."
-          curl -o $crtx_file $crtx_url
+          curl -s -o "$crtx_file" "$crtx_url"
+      
+          chmod +x "$crtx_file"
           
-          # Make the downloaded file executable
-          chmod +x $crtx_file
-
       - name: Cortex CLI execution
         run: |
           sudo ./cortexcli  --api-base-url $CORTEX_URL --api-key $API_KEY --api-key-id $API_ID image scan $IMAGE_NAME
