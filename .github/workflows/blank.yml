@@ -48,9 +48,9 @@ jobs:
       - name: Download cortexcli
         run: |
           set -x
-          crtx_resp=$(curl "${CORTEX_API_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
-            -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
-            -H "Authorization: ${CORTEX_API_KEY}")
+          crtx_resp=$(curl "${CORTEX_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
+            -H "x-xdr-auth-id: ${API_ID}" \
+            -H "Authorization: ${API_KEY}")
           crtx_url=$(echo $crtx_resp | jq -r ".signed_url")
           curl -o cortexcli $crtx_url
           chmod +x cortexcli
@@ -59,8 +59,8 @@ jobs:
       - name: Run Cortex CLI Code Scan
         run: |
           ./cortexcli \
-            --api-base-url "${CORTEX_API_URL}" \
-            --api-key "${CORTEX_API_KEY}" \
-            --api-key-id "${CORTEX_API_KEY_ID}" \
+            --api-base-url "${CORTEX_URL}" \
+            --api-key "${API_KEY}" \
+            --api-key-id "${API_ID}" \
             image scan \
             $IMAGE_NAME
