@@ -24,9 +24,9 @@ jobs:
     # Adding env. variables globally to retrieve Secrets from GitHub, and set image name
     env:
       CORTEX_URL: https://api-xsiamnfrsentria.xdr.us.paloaltonetworks.com
-      API_ID: ${{ secrets.CORTEX_API_KEY_ID }}
-      API_KEY: ${{ secrets.CORTEX_API_KEY }}
-      IMAGE_NAME: "mi-app:ci-${{ github.sha }}"   # <-- tag propio, evita ambigüedad con ubuntu:18.04 de Docker Hub
+      API_ID: ${{ secrets.API_ID }}
+      API_KEY: ${{ secrets.API_KEY }}
+      IMAGE_NAME: "mi-app:ci-${{ github.sha }}"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
